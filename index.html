@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ИНКОСТ — макет страницы</title>
+<style>
+  :root { --bar:#113333; --accent:#EF7F1A; --ink:#fff; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:#ededed; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .bar { position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px;
+         padding:10px 16px; background:var(--bar); color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  .bar b { font-size:15px; font-weight:600; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .switch { display:flex; background:rgba(255,255,255,.12); border-radius:999px; padding:3px; flex-shrink:0; }
+  .switch button { border:0; background:transparent; color:var(--ink); font:inherit; font-size:14px; padding:7px 14px; border-radius:999px; cursor:pointer; }
+  .switch button[aria-pressed="true"] { background:var(--accent); }
+  .view { display:none; }
+  .view.on { display:block; }
+  .view img { display:block; width:100%; height:auto; }
+  #desktop { max-width:1920px; margin:0 auto; background:#fff; }
+  #mobile { max-width:430px; margin:0 auto; background:#fff; box-shadow:0 0 24px rgba(0,0,0,.08); }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <b>ИНКОСТ · макет</b>
+    <div class="switch" role="group" aria-label="Версия">
+      <button type="button" data-v="desktop">Компьютер</button>
+      <button type="button" data-v="mobile">Телефон</button>
+    </div>
+  </div>
+
+  <main id="desktop" class="view">
+    <img src="img/d1.jpg" width="1920" height="1440" alt="">
+    <img src="img/d2.jpg" width="1920" height="1442" alt="" loading="lazy">
+    <img src="img/d3.jpg" width="1920" height="1440" alt="" loading="lazy">
+    <img src="img/d4.jpg" width="1920" height="1440" alt="" loading="lazy">
+    <img src="img/d5.jpg" width="1920" height="1440" alt="" loading="lazy">
+    <img src="img/d6.jpg" width="1920" height="700" alt="" loading="lazy">
+  </main>
+
+  <main id="mobile" class="view">
+    <img src="img/m1.jpg" width="786" height="2212" alt="">
+    <img src="img/m2.jpg" width="786" height="2212" alt="" loading="lazy">
+    <img src="img/m3.jpg" width="786" height="2212" alt="" loading="lazy">
+    <img src="img/m4.jpg" width="786" height="2212" alt="" loading="lazy">
+    <img src="img/m5.jpg" width="786" height="2212" alt="" loading="lazy">
+  </main>
+
+<script>
+  var btns = document.querySelectorAll('.switch button');
+  function show(v) {
+    document.querySelectorAll('.view').forEach(function (el) { el.classList.toggle('on', el.id === v); });
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.v === v); });
+    window.scrollTo(0, 0);
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.v); }); });
+  show(window.innerWidth < 800 ? 'mobile' : 'desktop');
+</script>
+</body>
+</html>
