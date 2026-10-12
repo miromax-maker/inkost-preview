@@ -177,55 +177,32 @@
     set(0);
   }
 
-  /* ===== Promo carousel ===== */
-  var PROMOS = [
-    { t: 'Специальные предложения по базовой ставке', d: 'Дополнительное снижение ставки на период строительства или на весь срок при первоначальном взносе от 50%' },
-    { t: 'Специальное предложение для многодетных семей', d: 'Скидка 2000 рублей с квадратного метра при покупке 2-х или 3-х комнатной квартиры', mTop: 128, mDesc: 263 },
-    { t: 'Скидка при 100% оплате наличными', d: 'Действует на ограниченный лот квартир до 31 августа 2026 года' },
-    { t: 'Специальные условия для семей участников СВО', d: 'Скидка до 2000 р/м² при любой форме оплаты. Скидка не суммируется с другими специальными предложениями', md: 'Скидка до 2000 р/м² при любой форме оплаты.', mDesc: 262 },
-    { t: 'Рассрочка от застройщика', d: 'Действует на строящиеся дома со сроком сдачи более 1 года.', mTop: 138 }
-  ];
-
+  /* ===== Promo carousel: full variants from Figma (picture, background, text) ===== */
   function promo(canvas, mobile) {
-    var T = mobile ? 4730 : 7202, cur = 0, n = PROMOS.length, timer;
-    var area = el('div', 'abs promo', box(0, T, mobile ? 393 : 1920, mobile ? 771 : 700), canvas);
-    var panel, title, desc, dots;
-    if (!mobile) {
-      panel = el('div', 'ptext', box(90, 235, 880, 240), area);
-      title = el('div', 'abs', merge(box(10, 27, 804, 88), { fontSize: px(36), lineHeight: px(44), textTransform: 'uppercase', fontWeight: 400 }), panel);
-      desc = el('div', 'abs', merge(box(10, 156, 650, 72), { fontSize: px(20), lineHeight: px(24), fontWeight: 400 }), panel);
-      el('div', 'abs', merge(box(92, 640, 150, 34), { background: '#EF7F1A' }), area);   // hide static dots
-      dots = el('div', 'dots', { left: px(101), top: px(651), gap: px(13) }, area);
-    } else {
-      panel = el('div', 'ptext', box(0, 112, 393, 196), area);
-      title = el('div', 'abs', merge(box(18, 16, 341, 120), { fontSize: px(24), lineHeight: px(29), textTransform: 'uppercase', fontWeight: 600, textAlign: 'center' }), panel);
-      desc = el('div', 'abs', merge(box(18, 129, 341, 60), { fontSize: px(12), lineHeight: px(15), fontWeight: 400, textAlign: 'center' }), panel);
-      dots = el('div', 'dots', { left: '0', width: '100%', justifyContent: 'center', top: px(748), gap: px(9) }, area);
+    var T = mobile ? 4730 : 7202, W = mobile ? 393 : 1920, H = mobile ? 771 : 700, n = 5, cur = 0, timer;
+    var area = el('div', 'abs promo', box(0, T, W, H), canvas);
+    var slides = [];
+    for (var k = 0; k < n; k++) {
+      var im = el('img', 'abs', { left: 0, top: 0, width: '100%', height: '100%', opacity: k ? 0 : 1, transition: 'opacity .6s ease', pointerEvents: 'none' }, area);
+      im.src = 'img/' + (mobile ? 'am' : 'a') + (k + 1) + '.jpg'; im.alt = ''; im.draggable = false;
+      slides.push(im);
     }
-    var db = PROMOS.map(function (_, k) {
-      var s = mobile ? 8 : 13;
-      var b = el('button', '', { width: px(s), height: px(s) }, dots); b.type = 'button';
-      b.setAttribute('aria-label', 'Акция ' + (k + 1));
-      b.addEventListener('click', function () { show(k); restart(); }); return b;
-    });
-    function fill() {
-      var p = PROMOS[cur];
-      title.textContent = p.t;
-      desc.textContent = mobile && p.md ? p.md : p.d;
-      if (mobile) {
-        title.style.top = px((p.mTop || 128) - 112);
-        desc.style.top = px((p.mDesc || 241) - 112);
-      }
-      db.forEach(function (b, i) { b.classList.toggle('on', i === cur); });
+    var dots, db;
+    if (!mobile) {   // dots are drawn in the pictures; place invisible click targets over them
+      dots = el('div', 'abs', { left: px(95), top: px(645), display: 'flex', gap: px(1) }, area);
+      db = slides.map(function (_, k) { var b = el('button', '', { width: px(25), height: px(25), border: 0, padding: 0, background: 'transparent', cursor: 'pointer' }, dots); b.type = 'button'; b.setAttribute('aria-label', 'Акция ' + (k + 1)); b.addEventListener('click', function () { show(k); restart(); }); return b; });
+    } else {
+      dots = el('div', 'dots', { left: '0', width: '100%', justifyContent: 'center', top: px(748), gap: px(9) }, area);
+      db = slides.map(function (_, k) { var b = el('button', '', { width: px(8), height: px(8) }, dots); b.type = 'button'; b.setAttribute('aria-label', 'Акция ' + (k + 1)); b.addEventListener('click', function () { show(k); restart(); }); return b; });
     }
     function show(k) {
-      k = (k + n) % n; if (k === cur && title.textContent) return;
-      cur = k; panel.classList.add('fade');
-      setTimeout(function () { fill(); panel.classList.remove('fade'); }, 250);
+      cur = (k + n) % n;
+      slides.forEach(function (s, i) { s.style.opacity = i === cur ? 1 : 0; });
+      db.forEach(function (b, i) { b.classList.toggle('on', i === cur); });
     }
     function restart() { clearInterval(timer); timer = setInterval(function () { show(cur + 1); }, 5000); }
     onSwipe(area, function (d) { show(cur + d); restart(); });
-    fill(); restart();
+    show(0); restart();
   }
 
   /* ===== Build ===== */
