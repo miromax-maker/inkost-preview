@@ -6,20 +6,57 @@
 <meta name="robots" content="noindex, nofollow">
 <title>ИНКОСТ — макет страницы</title>
 <style>
-  :root { --bar:#113333; --accent:#EF7F1A; --ink:#fff; }
+  @font-face { font-family:"Mont"; font-weight:400; font-display:swap; src:url(fonts/montserrat-cyrillic-400-normal.woff2) format("woff2"); unicode-range:U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+  @font-face { font-family:"Mont"; font-weight:400; font-display:swap; src:url(fonts/montserrat-latin-400-normal.woff2) format("woff2"); unicode-range:U+0000-00FF,U+2000-206F; }
+  @font-face { font-family:"Mont"; font-weight:500; font-display:swap; src:url(fonts/montserrat-cyrillic-500-normal.woff2) format("woff2"); unicode-range:U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+  @font-face { font-family:"Mont"; font-weight:500; font-display:swap; src:url(fonts/montserrat-latin-500-normal.woff2) format("woff2"); unicode-range:U+0000-00FF,U+2000-206F; }
+  @font-face { font-family:"Mont"; font-weight:600; font-display:swap; src:url(fonts/montserrat-cyrillic-600-normal.woff2) format("woff2"); unicode-range:U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116; }
+  @font-face { font-family:"Mont"; font-weight:600; font-display:swap; src:url(fonts/montserrat-latin-600-normal.woff2) format("woff2"); unicode-range:U+0000-00FF,U+2000-206F; }
+
+  :root { --bar:#113333; --accent:#EF7F1A; --teal:#339999; --navy:#0D3C63; --cream:#FBF1E6; }
   * { box-sizing:border-box; }
-  html, body { margin:0; background:#ededed; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-  .bar { position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px;
-         padding:10px 16px; background:var(--bar); color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  html, body { margin:0; background:#ededed; font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  .bar { position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; gap:12px;
+         padding:10px 16px; background:var(--bar); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.2); }
   .bar b { font-size:15px; font-weight:600; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .switch { display:flex; background:rgba(255,255,255,.12); border-radius:999px; padding:3px; flex-shrink:0; }
-  .switch button { border:0; background:transparent; color:var(--ink); font:inherit; font-size:14px; padding:7px 14px; border-radius:999px; cursor:pointer; }
+  .switch button { border:0; background:transparent; color:#fff; font:inherit; font-size:14px; padding:7px 14px; border-radius:999px; cursor:pointer; }
   .switch button[aria-pressed="true"] { background:var(--accent); }
-  .view { display:none; }
+
+  .view { display:none; margin:0 auto; background:#fff; }
   .view.on { display:block; }
-  .view img { display:block; width:100%; height:auto; }
-  #desktop { max-width:1920px; margin:0 auto; background:#fff; }
-  #mobile { max-width:430px; margin:0 auto; background:#fff; box-shadow:0 0 24px rgba(0,0,0,.08); }
+  #desktop { max-width:1920px; }
+  #mobile { max-width:430px; box-shadow:0 0 24px rgba(0,0,0,.08); }
+  .canvas { position:relative; --u:1px; overflow:hidden; }
+  .canvas > img { display:block; width:100%; height:auto; }
+  .abs { position:absolute; }
+  .u { font-family:"Mont",Arial,sans-serif; }
+
+  /* ---------- photo sliders ---------- */
+  .band { touch-action:pan-y; user-select:none; -webkit-user-select:none; overflow:hidden; }
+  .slide { position:absolute; overflow:hidden; background:#cfdcdc center/cover no-repeat;
+           transition:transform .55s cubic-bezier(.4,.1,.2,1); will-change:transform; }
+  .slide::after { content:""; position:absolute; inset:0; background:rgba(51,153,153,.62); transition:opacity .55s; pointer-events:none; }
+  .slide.cur::after { opacity:0; }
+  .slide.jump { transition:none; }
+  .cap { position:absolute; display:flex; align-items:center; justify-content:center; color:#fff; text-transform:uppercase;
+         background:rgba(51,153,153,.75); font-family:"Mont",Arial,sans-serif; font-weight:400; letter-spacing:.02em; white-space:nowrap; }
+  .arrow { position:absolute; border-radius:50%; border:calc(2*var(--u)) solid #fff; background:transparent; cursor:pointer; padding:0;
+           display:flex; align-items:center; justify-content:center; transition:background .2s; }
+  .arrow:hover { background:rgba(255,255,255,.18); }
+  .arrow svg { width:40%; height:40%; }
+
+  /* ---------- dots ---------- */
+  .dots { position:absolute; display:flex; }
+  .dots button { border:0; padding:0; border-radius:50%; cursor:pointer; background:var(--cream); transition:background .25s; }
+  .dots button.on { background:var(--navy); }
+  .mdots button { background:rgba(255,255,255,.45); }
+  .mdots button.on { background:#fff; }
+
+  /* ---------- promo ---------- */
+  .promo { touch-action:pan-y; user-select:none; -webkit-user-select:none; }
+  .ptext { position:absolute; background:#EF7F1A; color:#fff; font-family:"Mont",Arial,sans-serif; transition:opacity .3s; }
+  .ptext.fade { opacity:0; }
 </style>
 </head>
 <body>
@@ -31,32 +68,197 @@
     </div>
   </div>
 
-  <main id="desktop" class="view">
+  <main id="desktop" class="view"><div class="canvas" data-w="1920">
     <img src="img/d1.jpg" width="1920" height="1440" alt="">
-    <img src="img/d2.jpg" width="1920" height="1442" alt="" loading="lazy">
+    <img src="img/d2.jpg" width="1920" height="1442" alt="">
     <img src="img/d3.jpg" width="1920" height="1440" alt="" loading="lazy">
     <img src="img/d4.jpg" width="1920" height="1440" alt="" loading="lazy">
     <img src="img/d5.jpg" width="1920" height="1440" alt="" loading="lazy">
     <img src="img/d6.jpg" width="1920" height="700" alt="" loading="lazy">
-  </main>
+  </div></main>
 
-  <main id="mobile" class="view">
+  <main id="mobile" class="view"><div class="canvas" data-w="393">
     <img src="img/m1.jpg" width="786" height="2212" alt="">
-    <img src="img/m2.jpg" width="786" height="2212" alt="" loading="lazy">
+    <img src="img/m2.jpg" width="786" height="2212" alt="">
     <img src="img/m3.jpg" width="786" height="2212" alt="" loading="lazy">
     <img src="img/m4.jpg" width="786" height="2212" alt="" loading="lazy">
     <img src="img/m5.jpg" width="786" height="2212" alt="" loading="lazy">
-  </main>
+  </div></main>
 
 <script>
-  var btns = document.querySelectorAll('.switch button');
-  function show(v) {
-    document.querySelectorAll('.view').forEach(function (el) { el.classList.toggle('on', el.id === v); });
-    btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.v === v); });
-    window.scrollTo(0, 0);
+(function () {
+  var U = 'var(--u)';
+  function px(n) { return 'calc(' + n + ' * ' + U + ')'; }
+  function el(tag, cls, css, parent) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (css) for (var k in css) e.style[k] = css[k];
+    if (parent) parent.appendChild(e);
+    return e;
   }
-  btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.v); }); });
-  show(window.innerWidth < 800 ? 'mobile' : 'desktop');
+  function box(x, y, w, h) { return { left: px(x), top: px(y), width: px(w), height: px(h) }; }
+  function merge(a, b) { for (var k in b) a[k] = b[k]; return a; }
+  var chev = function (dir) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      (dir < 0 ? '<path d="M15 4 7 12l8 8"/>' : '<path d="m9 4 8 8-8 8"/>') + '</svg>';
+  };
+  function onSwipe(node, cb) {
+    var x0 = null, y0 = 0;
+    node.addEventListener('pointerdown', function (e) { x0 = e.clientX; y0 = e.clientY; });
+    node.addEventListener('pointerup', function (e) {
+      if (x0 === null) return;
+      var dx = e.clientX - x0, dy = e.clientY - y0; x0 = null;
+      if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) cb(dx < 0 ? 1 : -1);
+    });
+    node.addEventListener('pointercancel', function () { x0 = null; });
+  }
+
+  var PHOTOS = { p1: 'img/p1.jpg', p2: 'img/p2.jpg', p3: 'img/p3.jpg', p4: 'img/p4.jpg' };
+  var CAPTION = 'Красивая подпись';
+
+  /* ===== Desktop: green photo slider (3 visible: prev / current / next) ===== */
+  function desktopSlider(canvas, o) {
+    var BT = o.top + 150, BH = 530;               // covered band inside the 720px block
+    var c = function (t) {                          // block gradient #339999 -> #113333
+      var r = Math.round(51 - 34 * t), g = Math.round(153 - 102 * t);
+      return 'rgb(' + r + ',' + g + ',' + g + ')';
+    };
+    var band = el('div', 'abs band', merge(box(0, BT, 1920, BH),
+      { background: 'linear-gradient(' + c(150 / 720) + ',' + c(680 / 720) + ')' }), canvas);
+    var sy = o.slotY - 150, cur = 0, n = o.photos.length, slides = [];
+    o.photos.forEach(function (p) {
+      var s = el('div', 'slide', merge(box(o.slotX, sy, 845, 480), { borderRadius: px(6), backgroundImage: 'url(' + PHOTOS[p] + ')' }), band);
+      var cap = el('div', 'cap', merge(box(145, 408, 555, 50), { borderRadius: px(4), fontSize: px(15) }), s);
+      cap.textContent = CAPTION;
+      slides.push(s);
+    });
+    var last = slides.map(function () { return 0; });
+    function render(dir) {
+      slides.forEach(function (s, k) {
+        var d = ((k - cur) % n + n) % n; if (d > n / 2) d -= n;
+        var jump = Math.abs(d - last[k]) > 1;
+        s.classList.toggle('jump', jump);
+        s.style.transform = 'translateX(' + px(d * 1020) + ')';
+        s.classList.toggle('cur', d === 0);
+        s.style.zIndex = d === 0 ? 2 : 1;
+        if (jump) { s.style.opacity = 0; requestAnimationFrame(function () { requestAnimationFrame(function () { s.style.transition = 'opacity .5s'; s.style.opacity = 1; setTimeout(function () { s.style.transition = ''; }, 520); }); }); }
+        last[k] = d;
+      });
+    }
+    function go(step) { cur = (cur + step + n) % n; render(step); }
+    [[-1, o.arrowL], [1, o.arrowR]].forEach(function (a) {
+      var b = el('button', 'arrow', box(a[1][0], a[1][1] - 150, 63, 63), band);
+      b.type = 'button'; b.setAttribute('aria-label', a[0] < 0 ? 'Назад' : 'Вперёд');
+      b.innerHTML = chev(a[0]); b.addEventListener('click', function () { go(a[0]); });
+    });
+    // clicking a side photo also moves to it
+    slides.forEach(function (s, k) { s.addEventListener('click', function () { var d = ((k - cur) % n + n) % n; if (d > n / 2) d -= n; if (d) go(d); }); s.style.cursor = 'pointer'; });
+    onSwipe(band, go);
+    render(0);
+  }
+
+  /* ===== Mobile: single-photo slider with dots ===== */
+  function mobileSlider(canvas, o) {
+    var wrap = el('div', 'abs band', merge(box(55, o.top + o.y, 284, o.h), { borderRadius: px(6) }), canvas);
+    var track = el('div', '', { position: 'absolute', inset: 0, display: 'flex', transition: 'transform .45s cubic-bezier(.4,.1,.2,1)' }, wrap);
+    o.photos.forEach(function (p) {
+      var s = el('div', '', { position: 'relative', flex: '0 0 100%', height: '100%', background: 'url(' + PHOTOS[p] + ') center/cover no-repeat' }, track);
+      var cap = el('div', 'cap', merge(box(22, 256 - o.y, 239, 30), { borderRadius: px(3), fontSize: px(8.5) }), s);
+      cap.textContent = CAPTION;
+    });
+    var n = o.photos.length, cur = 0;
+    var dots = el('div', 'dots mdots', { left: '0', width: '100%', justifyContent: 'center', gap: px(8), top: px(o.top + 316) }, canvas);
+    var db = o.photos.map(function (_, k) {
+      var b = el('button', '', { width: px(7), height: px(7) }, dots); b.type = 'button';
+      b.setAttribute('aria-label', 'Фото ' + (k + 1)); b.addEventListener('click', function () { set(k); }); return b;
+    });
+    function set(k) { cur = (k + n) % n; track.style.transform = 'translateX(' + (-100 * cur) + '%)'; db.forEach(function (b, i) { b.classList.toggle('on', i === cur); }); }
+    onSwipe(wrap, function (d) { set(cur + d); });
+    set(0);
+  }
+
+  /* ===== Promo carousel ===== */
+  var PROMOS = [
+    { t: 'Специальные предложения по базовой ставке', d: 'Дополнительное снижение ставки на период строительства или на весь срок при первоначальном взносе от 50%' },
+    { t: 'Специальное предложение для многодетных семей', d: 'Скидка 2000 рублей с квадратного метра при покупке 2-х или 3-х комнатной квартиры', mTop: 128, mDesc: 263 },
+    { t: 'Скидка при 100% оплате наличными', d: 'Действует на ограниченный лот квартир до 31 августа 2026 года' },
+    { t: 'Специальные условия для семей участников СВО', d: 'Скидка до 2000 р/м² при любой форме оплаты. Скидка не суммируется с другими специальными предложениями', md: 'Скидка до 2000 р/м² при любой форме оплаты.', mDesc: 262 },
+    { t: 'Рассрочка от застройщика', d: 'Действует на строящиеся дома со сроком сдачи более 1 года.', mTop: 138 }
+  ];
+
+  function promo(canvas, mobile) {
+    var T = mobile ? 4730 : 7202, cur = 0, n = PROMOS.length, timer;
+    var area = el('div', 'abs promo', box(0, T, mobile ? 393 : 1920, mobile ? 771 : 700), canvas);
+    var panel, title, desc, dots;
+    if (!mobile) {
+      panel = el('div', 'ptext', box(90, 235, 880, 240), area);
+      title = el('div', 'abs', merge(box(10, 27, 804, 88), { fontSize: px(36), lineHeight: px(44), textTransform: 'uppercase', fontWeight: 400 }), panel);
+      desc = el('div', 'abs', merge(box(10, 156, 650, 72), { fontSize: px(20), lineHeight: px(24), fontWeight: 400 }), panel);
+      el('div', 'abs', merge(box(92, 640, 150, 34), { background: '#EF7F1A' }), area);   // hide static dots
+      dots = el('div', 'dots', { left: px(101), top: px(651), gap: px(13) }, area);
+    } else {
+      panel = el('div', 'ptext', box(0, 112, 393, 196), area);
+      title = el('div', 'abs', merge(box(18, 16, 341, 120), { fontSize: px(24), lineHeight: px(29), textTransform: 'uppercase', fontWeight: 600, textAlign: 'center' }), panel);
+      desc = el('div', 'abs', merge(box(18, 129, 341, 60), { fontSize: px(12), lineHeight: px(15), fontWeight: 400, textAlign: 'center' }), panel);
+      dots = el('div', 'dots', { left: '0', width: '100%', justifyContent: 'center', top: px(748), gap: px(9) }, area);
+    }
+    var db = PROMOS.map(function (_, k) {
+      var s = mobile ? 8 : 13;
+      var b = el('button', '', { width: px(s), height: px(s) }, dots); b.type = 'button';
+      b.setAttribute('aria-label', 'Акция ' + (k + 1));
+      b.addEventListener('click', function () { show(k); restart(); }); return b;
+    });
+    function fill() {
+      var p = PROMOS[cur];
+      title.textContent = p.t;
+      desc.textContent = mobile && p.md ? p.md : p.d;
+      if (mobile) {
+        title.style.top = px((p.mTop || 128) - 112);
+        desc.style.top = px((p.mDesc || 241) - 112);
+      }
+      db.forEach(function (b, i) { b.classList.toggle('on', i === cur); });
+    }
+    function show(k) {
+      k = (k + n) % n; if (k === cur && title.textContent) return;
+      cur = k; panel.classList.add('fade');
+      setTimeout(function () { fill(); panel.classList.remove('fade'); }, 250);
+    }
+    function restart() { clearInterval(timer); timer = setInterval(function () { show(cur + 1); }, 5000); }
+    onSwipe(area, function (d) { show(cur + d); restart(); });
+    fill(); restart();
+  }
+
+  /* ===== Build ===== */
+  var dc = document.querySelector('#desktop .canvas');
+  desktopSlider(dc, { top: 0,    slotX: 537, slotY: 185, arrowL: [482, 360], arrowR: [1439, 360], photos: ['p1', 'p3', 'p2'] });
+  desktopSlider(dc, { top: 2162, slotX: 538, slotY: 170, arrowL: [476, 362], arrowR: [1444, 362], photos: ['p2', 'p3', 'p1'] });
+  desktopSlider(dc, { top: 5042, slotX: 538, slotY: 170, arrowL: [476, 362], arrowR: [1444, 362], photos: ['p4', 'p3', 'p2'] });
+  promo(dc, false);
+
+  var mc = document.querySelector('#mobile .canvas');
+  mobileSlider(mc, { top: 0,    y: 119, h: 183, photos: ['p1', 'p3', 'p2'] });
+  mobileSlider(mc, { top: 1601, y: 116, h: 186, photos: ['p2', 'p3', 'p1'] });
+  mobileSlider(mc, { top: 3201, y: 116, h: 186, photos: ['p4', 'p3', 'p2'] });
+  promo(mc, true);
+
+  /* ===== scale: 1 design px -> screen px ===== */
+  function scale() {
+    document.querySelectorAll('.canvas').forEach(function (c) {
+      if (c.clientWidth) c.style.setProperty('--u', (c.clientWidth / +c.dataset.w) + 'px');
+    });
+  }
+  window.addEventListener('resize', scale);
+
+  /* ===== view switch ===== */
+  var btns = document.querySelectorAll('.switch button');
+  function view(v) {
+    document.querySelectorAll('.view').forEach(function (e) { e.classList.toggle('on', e.id === v); });
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.v === v); });
+    scale(); window.scrollTo(0, 0);
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { view(b.dataset.v); }); });
+  view(window.innerWidth < 800 ? 'mobile' : 'desktop');
+})();
 </script>
 </body>
 </html>
